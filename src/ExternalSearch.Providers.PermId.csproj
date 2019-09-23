@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <ProjectGuid>{198D0AF8-451B-45B0-8B11-031D2951D115}</ProjectGuid>
+    <RootNamespace>CluedIn.ExternalSearch.Providers.PermId</RootNamespace>
+    <AssemblyName>CluedIn.ExternalSearch.Providers.PermId</AssemblyName>
+    <TargetFramework>net452</TargetFramework>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <AssemblyTitle>ExternalSearch.Providers.PermId</AssemblyTitle>
+    <Company>CluedIn</Company>
+    <Product>ExternalSearch.Providers.PermId</Product>
+    <Copyright>Copyright (c) 2019 Clued In. All rights reserved.</Copyright>
+    <OutputPath>..\bin\$(Configuration)\net452\ServerComponent\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="CluedIn.ExternalSearch" Version="2.4.0-alpha0094" />
+    <PackageReference Include="domainname-parser" Version="999.1.15" />
+    <PackageReference Include="EntityFramework" Version="6.1.2" />
+    <PackageReference Include="Microsoft.Net.Http" Version="2.2.29" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="RestSharp" Version="105.2.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.configuration" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+</Project>
