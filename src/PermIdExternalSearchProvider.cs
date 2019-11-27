@@ -18,17 +18,20 @@ using RestSharp;
 using CluedIn.Core;
 using CluedIn.Core.Data;
 using CluedIn.Core.Data.Parts;
+using CluedIn.Core.Data.Relational;
 using CluedIn.ExternalSearch.Filters;
 using CluedIn.ExternalSearch.Providers.PermId.Models;
 using CluedIn.Core.ExternalSearch;
+using CluedIn.Core.Providers;
 using CluedIn.Crawling.Helpers;
 using CluedIn.ExternalSearch.Providers.PermId.Vocabularies;
+using EntityType = CluedIn.Core.Data.EntityType;
 
 namespace CluedIn.ExternalSearch.Providers.PermId
 {
     /// <summary>The permid graph external search provider.</summary>
     /// <seealso cref="CluedIn.ExternalSearch.ExternalSearchProviderBase" />
-    public class PermIdExternalSearchProvider : ExternalSearchProviderBase
+    public class PermIdExternalSearchProvider : ExternalSearchProviderBase, IExtendedEnricherMetadata
     {
         /**********************************************************************************************************
          * CONSTRUCTORS
@@ -351,5 +354,13 @@ namespace CluedIn.ExternalSearch.Providers.PermId
             if (!string.IsNullOrEmpty(person.PersonUrl?.FirstOrDefault()))
                 metadata.Uri = new Uri(string.Format("https://permid.org/1-{0}", person.PersonUrl.First()));
         }
+
+        public string Icon { get; } = "Resources.cluedin.png";
+        public string Domain { get; } = "To be confirmed";
+        public string About { get; } = "A test Enricher used to work with known data during acceptance tests";
+        public AuthMethods AuthMethods { get; } = null;
+        public IEnumerable<Control> Properties { get; } = null;
+        public Guide Guide { get; } = null;
+        public IntegrationType Type { get; } = IntegrationType.Cloud;
     }
 }
