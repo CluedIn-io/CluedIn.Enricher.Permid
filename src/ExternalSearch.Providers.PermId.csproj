@@ -18,10 +18,10 @@
     <DebugType>pdbonly</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Resources\cluedin.png" />
+    <None Remove="Resources\permid.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\cluedin.png" />
+    <EmbeddedResource Include="Resources\permid.jpg" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CluedIn.ExternalSearch" Version="2.4.0-alpha0100" />

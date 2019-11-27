@@ -355,9 +355,9 @@ namespace CluedIn.ExternalSearch.Providers.PermId
                 metadata.Uri = new Uri(string.Format("https://permid.org/1-{0}", person.PersonUrl.First()));
         }
 
-        public string Icon { get; } = "Resources.cluedin.png";
-        public string Domain { get; } = "To be confirmed";
-        public string About { get; } = "A test Enricher used to work with known data during acceptance tests";
+        public string Icon { get; } = "Resources.permid.jpg";
+        public string Domain { get; } = "https://permid.org/";
+        public string About { get; } = "PermID is enricher using permanent and universal identifiers where underlying attributes capture the context of the identity they each represent";
         public AuthMethods AuthMethods { get; } = null;
         public IEnumerable<Control> Properties { get; } = null;
         public Guide Guide { get; } = null;
