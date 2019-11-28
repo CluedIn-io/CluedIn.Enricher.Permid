@@ -24,7 +24,7 @@
     <EmbeddedResource Include="Resources\cluedin.png" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CluedIn.ExternalSearch" Version="2.4.0-alpha0100" />
+    <PackageReference Include="CluedIn.ExternalSearch" Version="2.6.0-alpha0003" />
     <PackageReference Include="domainname-parser" Version="999.1.15" />
     <PackageReference Include="EntityFramework" Version="6.1.2" />
     <PackageReference Include="Microsoft.Net.Http" Version="2.2.29" />
@@ -37,10 +37,7 @@
     <Reference Include="System.Net.Http" />
   </ItemGroup>
    <ItemGroup>
-    <PackageReference Include="CluedIn.ExternalSearch">
-      <Version>2.6.0-alpha0003</Version>
-    </PackageReference>
-    <PackageReference Include="MediaToolkit">
+     <PackageReference Include="MediaToolkit">
       <Version>1.1.0.1</Version>
     </PackageReference>
     <PackageReference Include="SerilogAnalyzer">
