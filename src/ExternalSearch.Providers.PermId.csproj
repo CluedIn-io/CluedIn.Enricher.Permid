@@ -24,7 +24,7 @@
     <EmbeddedResource Include="Resources\permid.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CluedIn.ExternalSearch" Version="2.6.0-alpha0003" />
+    <PackageReference Include="CluedIn.ExternalSearch" Version="2.5.2" />
     <PackageReference Include="domainname-parser" Version="999.1.15" />
     <PackageReference Include="EntityFramework" Version="6.1.2" />
     <PackageReference Include="Microsoft.Net.Http" Version="2.2.29" />
