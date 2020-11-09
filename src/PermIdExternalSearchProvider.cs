@@ -357,7 +357,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
 
         public string Icon { get; } = "Resources.permid.jpg";
         public string Domain { get; } = "https://permid.org/";
-        public string About { get; } = "PermID is enricher using permanent and universal identifiers where underlying attributes capture the context of the identity they each represent";
+        public string About { get; } = "PermID is an enricher using permanent and universal identifiers where underlying attributes capture the context of the identity they each represent";
         public AuthMethods AuthMethods { get; } = null;
         public IEnumerable<Control> Properties { get; } = null;
         public Guide Guide { get; } = null;
