@@ -54,7 +54,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
         {
             this.TokenProvider = new RoundRobinTokenProvider(tokens);
         }
- 
+
         public PermIdExternalSearchProvider([NotNull] IExternalSearchTokenProvider tokenProvider)
             : this(true)
         {
@@ -180,7 +180,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
 
             return retval;
         }
- 
+
         /// <inheritdoc/>
         public override IEnumerable<Clue> BuildClues(ExecutionContext context, IExternalSearchQuery query, IExternalSearchQueryResult result, IExternalSearchRequest request)
         {
@@ -207,7 +207,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
                 }
             }
         }
- 
+
         /// <inheritdoc/>
         public override IEntityMetadata GetPrimaryEntityMetadata(ExecutionContext context, IExternalSearchQueryResult result, IExternalSearchRequest request)
         {
@@ -236,10 +236,10 @@ namespace CluedIn.ExternalSearch.Providers.PermId
             var metadata = new EntityMetadataPart();
 
             this.PopulateMetadata(metadata, resultItem);
- 
+
             return metadata;
         }
- 
+
         /// <summary>Gets the origin entity code.</summary>
         /// <param name="resultItem">The result item.</param>
         /// <returns>The origin entity code.</returns>
@@ -276,7 +276,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
 
             var code = this.GetOriginEntityCode(resultItem);
             var data = resultItem.Data;
-            
+
             metadata.EntityType  = EntityType.Organization;
             metadata.Name        = resultItem.Data.OrganizationName?.FirstOrDefault().PrintIfAvailable();
             metadata.CreatedDate = resultItem.CreatedDate;
