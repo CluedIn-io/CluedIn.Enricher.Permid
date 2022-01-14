@@ -36,7 +36,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
         /**********************************************************************************************************
          * CONSTRUCTORS
          **********************************************************************************************************/
-        
+
         public PermIdExternalSearchProvider()
             : this(true)
         {
@@ -51,7 +51,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
         {
             this.TokenProvider = new RoundRobinTokenProvider(tokens);
         }
- 
+
         public PermIdExternalSearchProvider([NotNull] IExternalSearchTokenProvider tokenProvider)
             : this(true)
         {
@@ -76,7 +76,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
 
             if (string.IsNullOrEmpty(this.TokenProvider.ApiToken))
                 throw new InvalidOperationException("PermId ApiToken have not been configured");
- 
+
             var existingResults = request.GetQueryResults<PermIdSocialResponse>(this).ToList();
 
             Func<string, bool> existingDataFilter   = value => existingResults.Any(r => string.Equals(r.Data.OrganizationName.First(), value, StringComparison.InvariantCultureIgnoreCase));
@@ -95,7 +95,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
             {
                 var values = organizationName.GetOrganizationNameVariants()
                                              .Select(NameNormalization.Normalize)
-                                             .ToHashSet();
+                                             .ToHashSetEx();
 
                 foreach (var value in values)
                 {
@@ -106,7 +106,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
                 }
             }
         }
- 
+
         /// <inheritdoc/>
         public override IEnumerable<IExternalSearchQueryResult> ExecuteSearch(ExecutionContext context, IExternalSearchQuery query)
         {
@@ -168,7 +168,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
 
             return retval;
         }
- 
+
         /// <inheritdoc/>
         public override IEnumerable<Clue> BuildClues(ExecutionContext context, IExternalSearchQuery query, IExternalSearchQueryResult result, IExternalSearchRequest request)
         {
@@ -195,7 +195,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
                 }
             }
         }
- 
+
         /// <inheritdoc/>
         public override IEntityMetadata GetPrimaryEntityMetadata(ExecutionContext context, IExternalSearchQueryResult result, IExternalSearchRequest request)
         {
@@ -224,10 +224,10 @@ namespace CluedIn.ExternalSearch.Providers.PermId
             var metadata = new EntityMetadataPart();
 
             this.PopulateMetadata(metadata, resultItem);
- 
+
             return metadata;
         }
- 
+
         /// <summary>Gets the origin entity code.</summary>
         /// <param name="resultItem">The result item.</param>
         /// <returns>The origin entity code.</returns>
@@ -264,7 +264,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
 
             var code = this.GetOriginEntityCode(resultItem);
             var data = resultItem.Data;
-            
+
             metadata.EntityType  = EntityType.Organization;
             metadata.Name        = resultItem.Data.OrganizationName?.FirstOrDefault().PrintIfAvailable();
             metadata.CreatedDate = resultItem.CreatedDate;
