@@ -132,7 +132,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
             if (string.IsNullOrEmpty(name))
                 yield break;
 
-            var searchClient = new RestClient("https://api.thomsonreuters.com/permid/");
+            var searchClient = new RestClient(" https://api-eit.refinitiv.com/permid");
             var socialClient = new RestClient("https://permid.org/api/mdaas/getEntityById/");
 
             if (!string.IsNullOrEmpty(name))
@@ -141,7 +141,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
 
                 foreach (var res in searchResult.Result.Organizations.Entities)
                 {
-                    idList.Add(res.Id.Split('-')[1]);
+                    idList.Add(res.Id.Split('-').Last());
                 }
             }
 
