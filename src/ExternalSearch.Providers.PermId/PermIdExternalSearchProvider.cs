@@ -31,12 +31,15 @@ namespace CluedIn.ExternalSearch.Providers.PermId
 {
     /// <summary>The permid graph external search provider.</summary>
     /// <seealso cref="CluedIn.ExternalSearch.ExternalSearchProviderBase" />
-    public class PermIdExternalSearchProvider : ExternalSearchProviderBase, IExtendedEnricherMetadata
+    public class PermIdExternalSearchProvider : ExternalSearchProviderBase, IExtendedEnricherMetadata , IConfigurableExternalSearchProvider
     {
+
+        private static readonly EntityType[] AcceptedEntityTypes = { EntityType.Organization };
+
         /**********************************************************************************************************
          * CONSTRUCTORS
          **********************************************************************************************************/
-        
+
         public PermIdExternalSearchProvider()
             : this(true)
         {
@@ -59,7 +62,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
         }
 
         private PermIdExternalSearchProvider(bool tokenProviderIsRequired)
-            : base(Constants.ExternalSearchProviders.PermId, EntityType.Organization)
+            : base(Constants.ProviderId, AcceptedEntityTypes)
         {
             this.TokenProviderIsRequired = tokenProviderIsRequired;
         }
@@ -74,8 +77,8 @@ namespace CluedIn.ExternalSearch.Providers.PermId
             if (!this.Accepts(request.EntityMetaData.EntityType))
                 yield break;
 
-            if (string.IsNullOrEmpty(this.TokenProvider.ApiToken))
-                throw new InvalidOperationException("PermId ApiToken have not been configured");
+            //if (string.IsNullOrEmpty(this.TokenProvider.ApiToken))
+            //    throw new InvalidOperationException("PermId ApiToken have not been configured");
  
             var existingResults = request.GetQueryResults<PermIdSocialResponse>(this).ToList();
 
@@ -95,7 +98,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
             {
                 var values = organizationName.GetOrganizationNameVariants()
                                              .Select(NameNormalization.Normalize)
-                                             .ToHashSet();
+                                             .ToHashSetEx();
 
                 foreach (var value in values)
                 {
@@ -106,16 +109,25 @@ namespace CluedIn.ExternalSearch.Providers.PermId
                 }
             }
         }
- 
+
         /// <inheritdoc/>
-        public override IEnumerable<IExternalSearchQueryResult> ExecuteSearch(ExecutionContext context, IExternalSearchQuery query)
+        public override IEnumerable<IExternalSearchQueryResult> ExecuteSearch(ExecutionContext context,
+            IExternalSearchQuery query)
+        {
+            var apiKey = this.TokenProvider.ApiToken;
+
+            foreach (var externalSearchQueryResult in InternalExecuteSearch(query, apiKey))
+                yield return externalSearchQueryResult;
+        }
+
+        private static IEnumerable<IExternalSearchQueryResult> InternalExecuteSearch(IExternalSearchQuery query, string apiKey)
         {
             var name     = query.QueryParameters[ExternalSearchQueryParameter.Name].FirstOrDefault();
             var idList   = new List<string>();
-            var apiToken = this.TokenProvider.ApiToken;
+            var apiToken = apiKey;
 
             if (string.IsNullOrEmpty(apiToken))
-                throw new InvalidOperationException("PermId ApiToken have not been configured");
+                throw new InvalidOperationException("PermId ApiToken has not been configured");
 
             if (string.IsNullOrEmpty(name))
                 yield break;
@@ -125,7 +137,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
 
             if (!string.IsNullOrEmpty(name))
             {
-                var searchResult = this.RequestWrapper<PermIdSearchResponse>(searchClient, "search?q=" + name);
+                var searchResult = RequestWrapper<PermIdSearchResponse>(searchClient, "search?q=" + name, apiKey);
 
                 foreach (var res in searchResult.Result.Organizations.Entities)
                 {
@@ -135,7 +147,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
 
             foreach (var permId in idList)
             {
-                var socialResult = this.RequestWrapper<PermIdSocialResponse>(socialClient, permId);
+                var socialResult = RequestWrapper<PermIdSocialResponse>(socialClient, permId, apiKey);
 
                 if (socialResult != null)
                 {
@@ -144,7 +156,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
             }
         }
 
-        private T RequestWrapper<T>(IRestClient client, string parameter)
+        private static T RequestWrapper<T>(IRestClient client, string parameter, string apiKey)
         {
             T retval = default(T);
 
@@ -152,7 +164,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
             {
                 var request = new RestRequest(parameter, Method.GET);
 
-                request.AddHeader("X-AG-Access-Token", this.TokenProvider.ApiToken);
+                request.AddHeader("X-AG-Access-Token", apiKey);
 
                 var response = client.Execute(request);
 
@@ -355,12 +367,51 @@ namespace CluedIn.ExternalSearch.Providers.PermId
                 metadata.Uri = new Uri(string.Format("https://permid.org/1-{0}", person.PersonUrl.First()));
         }
 
-        public string Icon { get; } = "Resources.permid.jpg";
-        public string Domain { get; } = "https://permid.org/";
-        public string About { get; } = "PermID is an enricher using permanent and universal identifiers where underlying attributes capture the context of the identity they each represent";
-        public AuthMethods AuthMethods { get; } = null;
-        public IEnumerable<Control> Properties { get; } = null;
-        public Guide Guide { get; } = null;
-        public IntegrationType Type { get; } = IntegrationType.Cloud;
+        public string Icon { get; } = Constants.Icon;
+        public string Domain { get; } = Constants.Domain;
+        public string About { get; } = Constants.About;
+        public AuthMethods AuthMethods { get; } = Constants.AuthMethods;
+        public IEnumerable<Control> Properties { get; } = Constants.Properties;
+        public Guide Guide { get; } = Constants.Guide;
+        public IntegrationType Type { get; } = Constants.IntegrationType;
+
+        public IEnumerable<EntityType> Accepts(IDictionary<string, object> config, IProvider provider)
+        {
+            return AcceptedEntityTypes;
+        }
+
+        public IEnumerable<IExternalSearchQuery> BuildQueries(ExecutionContext context, IExternalSearchRequest request, IDictionary<string, object> config,
+            IProvider provider)
+        {
+            return BuildQueries(context, request);
+        }
+
+        public IEnumerable<IExternalSearchQueryResult> ExecuteSearch(ExecutionContext context, IExternalSearchQuery query, IDictionary<string, object> config, IProvider provider)
+        {
+            var jobData = new PermIdExternalSearchJobData(config);
+
+            foreach (var externalSearchQueryResult in InternalExecuteSearch(query, jobData.ApiToken))
+            {
+                yield return externalSearchQueryResult;
+            }
+        }
+
+        public IEnumerable<Clue> BuildClues(ExecutionContext context, IExternalSearchQuery query, IExternalSearchQueryResult result,
+            IExternalSearchRequest request, IDictionary<string, object> config, IProvider provider)
+        {
+            return BuildClues(context, query, result, request);
+        }
+
+        public IEntityMetadata GetPrimaryEntityMetadata(ExecutionContext context, IExternalSearchQueryResult result,
+            IExternalSearchRequest request, IDictionary<string, object> config, IProvider provider)
+        {
+            return GetPrimaryEntityMetadata(context, result, request);
+        }
+
+        public IPreviewImage GetPrimaryEntityPreviewImage(ExecutionContext context, IExternalSearchQueryResult result,
+            IExternalSearchRequest request, IDictionary<string, object> config, IProvider provider)
+        {
+            return GetPrimaryEntityPreviewImage(context, result, request);
+        }
     }
 }
