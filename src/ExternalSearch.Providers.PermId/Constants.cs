@@ -15,7 +15,8 @@ namespace CluedIn.ExternalSearch.Providers.PermId
         public struct KeyName
         {
             public const string ApiToken = "apiToken";
-
+            public const string AcceptedEntityType = "acceptedEntityType";
+            public const string OrganizationName = "organizationName";
         }
 
         public static string About { get; set; } = "PermID is an enricher using permanent and universal identifiers where underlying attributes capture the context of the identity they each represent";
@@ -32,6 +33,20 @@ namespace CluedIn.ExternalSearch.Providers.PermId
                     type = "input",
                     isRequired = true,
                     name = KeyName.ApiToken
+                },
+                new Control()
+                {
+                    displayName = "Accepted Entity Type",
+                    type = "input",
+                    isRequired = false,
+                    name = KeyName.AcceptedEntityType
+                },
+                new Control()
+                {
+                    displayName = "Organization Name vocab key",
+                    type = "input",
+                    isRequired = false,
+                    name = KeyName.OrganizationName
                 }
             }
         };
