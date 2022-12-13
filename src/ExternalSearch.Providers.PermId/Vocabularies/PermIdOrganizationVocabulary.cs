@@ -73,13 +73,6 @@ namespace CluedIn.ExternalSearch.Providers.PermId.Vocabularies
                     this.MainQuoteUrl = group.Add(new VocabularyKey("mainQuote.url", VocabularyKeyDataType.Uri));
                 });
 
-            this.AddMapping(this.OrganizationName, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.OrganizationName);
-            this.AddMapping(this.Lei, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.CodesLeiCode);
-            this.AddMapping(this.LatestDateOfIncorporation, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.FoundingDate);
-            this.AddMapping(this.Website, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.Website);
-            this.AddMapping(this.MainQuoteTicker, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.TickerSymbol);
-            this.AddMapping(this.MainQuoteRic, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.CodesRIC);
-            this.AddMapping(this.MainQuoteMic, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.CodesMIC);
         }
 
         public VocabularyKey DomiciledIn { get; set; }
