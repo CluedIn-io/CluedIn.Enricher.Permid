@@ -43,7 +43,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
          **********************************************************************************************************/
 
         public PermIdExternalSearchProvider()
-            : this(true)
+            : base(Constants.ProviderId, AcceptedEntityTypes)
         {
             var nameBasedTokenProvider = new NameBasedTokenProvider("PermId");
 
@@ -64,7 +64,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
         }
 
         private PermIdExternalSearchProvider(bool tokenProviderIsRequired)
-            : base(Constants.ProviderId, AcceptedEntityTypes)
+            : this()
         {
             this.TokenProviderIsRequired = tokenProviderIsRequired;
         }
