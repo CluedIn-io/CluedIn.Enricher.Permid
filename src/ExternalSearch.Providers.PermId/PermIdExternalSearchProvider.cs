@@ -184,6 +184,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
                 if (socialResult != null)
                 {
                     yield return new ExternalSearchQueryResult<PermIdSocialResponse>(query, socialResult);
+                    yield break;
                 }
             }
         }
