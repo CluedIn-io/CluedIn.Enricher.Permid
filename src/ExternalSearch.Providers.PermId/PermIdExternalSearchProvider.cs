@@ -219,6 +219,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
         {
             var organizationCode = this.GetOriginEntityCode(result.As<PermIdSocialResponse>(), request);
             var organizationClue = new Clue(organizationCode, context.Organization);
+            organizationClue.Data.EntityData.Codes.Add(request.EntityMetaData.Codes.First());
 
             this.PopulateMetadata(organizationClue.Data.EntityData, result.As<PermIdSocialResponse>(), request);
 
@@ -226,18 +227,18 @@ namespace CluedIn.ExternalSearch.Providers.PermId
 
             if (result.As<PermIdSocialResponse>().Data.AdditionalInfo != null)
             {
-                foreach (var person in result.As<PermIdSocialResponse>().Data.AdditionalInfo)
-                {
-                    var personCode = this.GetPersonEntityCode(person, request);
-                    var personClue = new Clue(personCode, context.Organization);
+                //foreach (var person in result.As<PermIdSocialResponse>().Data.AdditionalInfo)
+                //{
+                //    var personCode = this.GetPersonEntityCode(person, request);
+                //    var personClue = new Clue(personCode, context.Organization);
 
-                    this.PopulatePersonMetadata(personClue.Data.EntityData, person, request);
+                //    this.PopulatePersonMetadata(personClue.Data.EntityData, person, request);
 
-                    var personToOrganizationEdge = new EntityEdge(new EntityReference(personCode), new EntityReference(organizationCode), EntityEdgeType.WorksFor);
-                    personClue.Data.EntityData.OutgoingEdges.Add(personToOrganizationEdge);
+                //    var personToOrganizationEdge = new EntityEdge(new EntityReference(personCode), new EntityReference(organizationCode), EntityEdgeType.WorksFor);
+                //    personClue.Data.EntityData.OutgoingEdges.Add(personToOrganizationEdge);
 
-                    yield return personClue;
-                }
+                //    yield return personClue;
+                //}
             }
         }
 

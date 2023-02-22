@@ -73,6 +73,8 @@ namespace CluedIn.ExternalSearch.Providers.PermId.Vocabularies
                     this.MainQuoteUrl = group.Add(new VocabularyKey("mainQuote.url", VocabularyKeyDataType.Uri));
                 });
 
+            this.AddMapping(this.Website, CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInOrganization.Website);
+
         }
 
         public VocabularyKey DomiciledIn { get; set; }
