@@ -1,5 +1,5 @@
 mode: ContinuousDeployment
-next-version: "3.3"
+next-version: 3.4
 branches:
   hotfix:
     tag: useBranchName
@@ -9,19 +9,19 @@ branches:
   master:
     mode: ContinuousDelivery
   ama:
+    increment: None
+    tracks-release-branches: false
+    regex: ^ama[/-]
+    is-release-branch: false
+    mode: ContinuousDeployment
+    track-merge-target: false
+    tag: ama
+    pre-release-weight: 30000
+    prevent-increment-of-merged-branch-version: true
     is-mainline: false
     source-branches:
     - main
     - develop
-    mode: ContinuousDeployment
-    pre-release-weight: 30000
-    regex: ^ama[/-]
-    track-merge-target: false
-    prevent-increment-of-merged-branch-version: true
-    tag: ama
-    is-release-branch: false
-    increment: None
-    tracks-release-branches: false
   develop:
     tag: alpha
 
