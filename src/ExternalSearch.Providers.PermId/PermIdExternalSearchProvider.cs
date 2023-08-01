@@ -115,7 +115,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
             {
                 var values = organizationName.GetOrganizationNameVariants()
                                              .Select(NameNormalization.Normalize)
-                                             .ToHashSetEx();
+                                             .ToHashSet();
 
                 foreach (var value in values)
                 {
