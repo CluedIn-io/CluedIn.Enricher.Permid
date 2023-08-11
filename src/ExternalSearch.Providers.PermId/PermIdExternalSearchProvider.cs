@@ -51,13 +51,13 @@ namespace CluedIn.ExternalSearch.Providers.PermId
                 this.TokenProvider = new RoundRobinTokenProvider(nameBasedTokenProvider.ApiToken.Split(',', ';'));
         }
 
-        public PermIdExternalSearchProvider(IList<string> tokens)
+        private PermIdExternalSearchProvider(IList<string> tokens)
             : this(true)
         {
             this.TokenProvider = new RoundRobinTokenProvider(tokens);
         }
 
-        public PermIdExternalSearchProvider([NotNull] IExternalSearchTokenProvider tokenProvider)
+        private PermIdExternalSearchProvider([NotNull] IExternalSearchTokenProvider tokenProvider)
             : this(true)
         {
             this.TokenProvider = tokenProvider ?? throw new ArgumentNullException(nameof(tokenProvider));
@@ -94,7 +94,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
 
             //if (string.IsNullOrEmpty(this.TokenProvider.ApiToken))
             //    throw new InvalidOperationException("PermId ApiToken have not been configured");
- 
+
             var existingResults = request.GetQueryResults<PermIdSocialResponse>(this).ToList();
 
             Func<string, bool> existingDataFilter   = value => existingResults.Any(r => string.Equals(r.Data.OrganizationName.First(), value, StringComparison.InvariantCultureIgnoreCase));
