@@ -41,10 +41,6 @@ namespace CluedIn.ExternalSearch.Providers.PermId.Vocabularies
                 this.PositionUrl                        = group.Add(new VocabularyKey("positionUrl",                    VocabularyKeyDataType.Uri));
             });
 
-            this.AddMapping(this.GivenName,                 CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInUser.FirstName);
-            this.AddMapping(this.MiddleName,                CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInUser.MiddleName);
-            this.AddMapping(this.FamilyName,                CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInUser.LastName);
-            this.AddMapping(this.HasReportedTitlePerson,    CluedIn.Core.Data.Vocabularies.Vocabularies.CluedInUser.JobTitle);
         }
 
         public VocabularyKey PersonUrl { get; set; }
