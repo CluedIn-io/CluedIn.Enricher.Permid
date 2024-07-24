@@ -47,28 +47,6 @@ namespace CluedIn.ExternalSearch.Providers.PermId
         public PermIdExternalSearchProvider()
             : base(Constants.ProviderId, DefaultAcceptedEntityTypes)
         {
-            var nameBasedTokenProvider = new NameBasedTokenProvider("PermId");
-
-            if (nameBasedTokenProvider.ApiToken != null)
-                this.TokenProvider = new RoundRobinTokenProvider(nameBasedTokenProvider.ApiToken.Split(',', ';'));
-        }
-
-        private PermIdExternalSearchProvider(IList<string> tokens)
-            : this(true)
-        {
-            this.TokenProvider = new RoundRobinTokenProvider(tokens);
-        }
-
-        private PermIdExternalSearchProvider([NotNull] IExternalSearchTokenProvider tokenProvider)
-            : this(true)
-        {
-            this.TokenProvider = tokenProvider ?? throw new ArgumentNullException(nameof(tokenProvider));
-        }
-
-        private PermIdExternalSearchProvider(bool tokenProviderIsRequired)
-            : this()
-        {
-            this.TokenProviderIsRequired = tokenProviderIsRequired;
         }
 
         /**********************************************************************************************************
@@ -106,9 +84,6 @@ namespace CluedIn.ExternalSearch.Providers.PermId
         {
             if (!this.Accepts(config, request.EntityMetaData.EntityType))
                 yield break;
-
-            //if (string.IsNullOrEmpty(this.TokenProvider.ApiToken))
-            //    throw new InvalidOperationException("PermId ApiToken have not been configured");
 
             var existingResults = request.GetQueryResults<PermIdSocialResponse>(this).ToList();
 
