@@ -35,15 +35,18 @@ namespace CluedIn.ExternalSearch.Providers.PermId
     /// <seealso cref="CluedIn.ExternalSearch.ExternalSearchProviderBase" />
     public class PermIdExternalSearchProvider : ExternalSearchProviderBase, IExtendedEnricherMetadata , IConfigurableExternalSearchProvider
     {
+        /**********************************************************************************************************
+         * FIELDS
+         **********************************************************************************************************/
 
-        private static readonly EntityType[] AcceptedEntityTypes = { EntityType.Organization };
+        private static readonly EntityType[] DefaultAcceptedEntityTypes = { EntityType.Organization };
 
         /**********************************************************************************************************
          * CONSTRUCTORS
          **********************************************************************************************************/
 
         public PermIdExternalSearchProvider()
-            : base(Constants.ProviderId, AcceptedEntityTypes)
+            : base(Constants.ProviderId, DefaultAcceptedEntityTypes)
         {
             var nameBasedTokenProvider = new NameBasedTokenProvider("PermId");
 
@@ -73,6 +76,30 @@ namespace CluedIn.ExternalSearch.Providers.PermId
          * METHODS
          **********************************************************************************************************/
 
+        public IEnumerable<EntityType> Accepts(IDictionary<string, object> config, IProvider provider) => this.Accepts(config);
+
+        private IEnumerable<EntityType> Accepts(IDictionary<string, object> config)
+            => Accepts(new PermIdExternalSearchJobData(config));
+
+        private IEnumerable<EntityType> Accepts(PermIdExternalSearchJobData config)
+        {
+            if (!string.IsNullOrWhiteSpace(config.AcceptedEntityType))
+            {
+                // If configured, only accept the configured entity types
+                return new EntityType[] { config.AcceptedEntityType };
+            }
+
+            // Fallback to default accepted entity types
+            return DefaultAcceptedEntityTypes;
+        }
+
+        private bool Accepts(PermIdExternalSearchJobData config, EntityType entityTypeToEvaluate)
+        {
+            var configurableAcceptedEntityTypes = this.Accepts(config).ToArray();
+
+            return configurableAcceptedEntityTypes.Any(entityTypeToEvaluate.Is);
+        }
+
         public override IEnumerable<IExternalSearchQuery> BuildQueries(ExecutionContext context, IExternalSearchRequest request)
         {
             foreach (var externalSearchQuery in InternalBuildQueries(context, request))
@@ -80,16 +107,10 @@ namespace CluedIn.ExternalSearch.Providers.PermId
                 yield return externalSearchQuery;
             }
         }
-        private IEnumerable<IExternalSearchQuery> InternalBuildQueries(ExecutionContext context, IExternalSearchRequest request, IDictionary<string, object> config = null)
+
+        private IEnumerable<IExternalSearchQuery> InternalBuildQueries(ExecutionContext context, IExternalSearchRequest request, PermIdExternalSearchJobData config = null)
         {
-            if (config.TryGetValue(Constants.KeyName.AcceptedEntityType, out var customType) && !string.IsNullOrWhiteSpace(customType?.ToString()))
-            {
-                if (!request.EntityMetaData.EntityType.Is(customType.ToString()))
-                {
-                    yield break;
-                }
-            }
-            else if (!this.Accepts(request.EntityMetaData.EntityType))
+            if (!this.Accepts(config, request.EntityMetaData.EntityType))
                 yield break;
 
             //if (string.IsNullOrEmpty(this.TokenProvider.ApiToken))
@@ -103,7 +124,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
             // Query Input
             var entityType       = request.EntityMetaData.EntityType;
 
-            var organizationName = GetValue(request, config, Constants.KeyName.OrganizationName, Core.Data.Vocabularies.Vocabularies.CluedInOrganization.OrganizationName);
+            var organizationName = GetValue(request, config.ToDictionary(), Constants.KeyName.OrganizationName, Core.Data.Vocabularies.Vocabularies.CluedInOrganization.OrganizationName);
 
 
             if (!string.IsNullOrEmpty(request.EntityMetaData.Name))
@@ -396,6 +417,9 @@ namespace CluedIn.ExternalSearch.Providers.PermId
                 metadata.Uri = new Uri(string.Format("https://permid.org/1-{0}", person.PersonUrl.First()));
         }
 
+        // Since this is a configurable external search provider, theses methods should never be called
+        public override bool Accepts(EntityType entityType) => throw new NotSupportedException();
+
         public string Icon { get; } = Constants.Icon;
         public string Domain { get; } = Constants.Domain;
         public string About { get; } = Constants.About;
@@ -404,15 +428,9 @@ namespace CluedIn.ExternalSearch.Providers.PermId
         public Guide Guide { get; } = Constants.Guide;
         public IntegrationType Type { get; } = Constants.IntegrationType;
 
-        public IEnumerable<EntityType> Accepts(IDictionary<string, object> config, IProvider provider)
+        public IEnumerable<IExternalSearchQuery> BuildQueries(ExecutionContext context, IExternalSearchRequest request, IDictionary<string, object> config, IProvider provider)
         {
-            return AcceptedEntityTypes;
-        }
-
-        public IEnumerable<IExternalSearchQuery> BuildQueries(ExecutionContext context, IExternalSearchRequest request, IDictionary<string, object> config,
-            IProvider provider)
-        {
-            return InternalBuildQueries(context, request, config);
+            return InternalBuildQueries(context, request, new PermIdExternalSearchJobData(config));
         }
 
         public IEnumerable<IExternalSearchQueryResult> ExecuteSearch(ExecutionContext context, IExternalSearchQuery query, IDictionary<string, object> config, IProvider provider)
