@@ -36,7 +36,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
                     "type": "list-item",
                     "children": [
                       {
-                        "text": "(For some enrichers) Add the API key to enable the enricher to retrieve information from a specific API. For example, the Vatlayer enricher requires an access key to authenticate with the Vatlayer API."
+                        "text": "Add the API key to enable the enricher to retrieve information from a specific API. For example, the Vatlayer enricher requires an access key to authenticate with the Vatlayer API."
                       }
                     ]
                   }
