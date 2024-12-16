@@ -19,20 +19,24 @@ using CluedIn.Core;
 using CluedIn.Core.Data;
 using CluedIn.Core.Data.Parts;
 using CluedIn.Core.Data.Relational;
-using CluedIn.ExternalSearch.Filters;
-using CluedIn.ExternalSearch.Providers.PermId.Models;
 using CluedIn.Core.ExternalSearch;
 using CluedIn.Core.Providers;
-using CluedIn.Crawling.Helpers;
-using CluedIn.ExternalSearch.Providers.PermId.Vocabularies;
 using EntityType = CluedIn.Core.Data.EntityType;
 using CluedIn.Core.Data.Vocabularies;
+using CluedIn.Core.Connectors;
+using CluedIn.Crawling.Helpers;
+using CluedIn.ExternalSearch.Providers.PermId.Vocabularies;
+using CluedIn.ExternalSearch.Filters;
+using CluedIn.ExternalSearch.Providers.PermId.Models;
+using System.Text.RegularExpressions;
+using Azure;
+using Z.Expressions;
 
 namespace CluedIn.ExternalSearch.Providers.PermId
 {
     /// <summary>The permid graph external search provider.</summary>
     /// <seealso cref="CluedIn.ExternalSearch.ExternalSearchProviderBase" />
-    public class PermIdExternalSearchProvider : ExternalSearchProviderBase, IExtendedEnricherMetadata , IConfigurableExternalSearchProvider
+    public class PermIdExternalSearchProvider : ExternalSearchProviderBase, IExtendedEnricherMetadata , IConfigurableExternalSearchProvider, IExternalSearchProviderWithVerifyConnection
     {
         /**********************************************************************************************************
          * FIELDS
@@ -240,6 +244,73 @@ namespace CluedIn.ExternalSearch.Providers.PermId
         public IPreviewImage GetPrimaryEntityPreviewImage(ExecutionContext context, IExternalSearchQueryResult result, IExternalSearchRequest request, IDictionary<string, object> config, IProvider provider)
         {
             return null;
+        }
+
+        public ConnectionVerificationResult VerifyConnection(ExecutionContext context, IReadOnlyDictionary<string, object> config)
+        {
+            IDictionary<string, object> configDict = config.ToDictionary(entry => entry.Key, entry => entry.Value);
+            var jobData = new PermIdExternalSearchJobData(configDict);
+
+            var idList = new List<string>();
+            var apiToken = jobData.ApiToken;
+
+            var searchClient = new RestClient("https://api-eit.refinitiv.com/permid/search?q=Google");
+            var socialClient = new RestClient("https://permid.org/api/mdaas/getEntityById/");
+            var request = new RestRequest(Method.GET);
+            request.AddHeader("X-AG-Access-Token", apiToken);
+
+            var searchResponse = searchClient.Execute<PermIdSearchResponse>(request);
+            if (!searchResponse.IsSuccessful)
+            {
+                return ConstructVerifyConnectionResponse(searchResponse);
+            }
+
+            if (searchResponse.StatusCode == HttpStatusCode.OK)
+            {
+                var retval = JsonConvert.DeserializeObject<PermIdSearchResponse>(searchResponse.Content);
+                foreach (var res in retval.Result.Organizations.Entities)
+                {
+                    idList.Add(res.Id.Split('-').Last());
+                }
+            }
+
+            foreach (var permId in idList)
+            {
+                request = new RestRequest(permId, Method.GET);
+                request.AddHeader("X-AG-Access-Token", apiToken);
+
+                var socialResponse = socialClient.Execute<PermIdSearchResponse>(request);
+                if (!socialResponse.IsSuccessful)
+                {
+                    return ConstructVerifyConnectionResponse(socialResponse);
+                }
+            }
+
+            return new ConnectionVerificationResult(true, string.Empty);
+        }
+
+        private ConnectionVerificationResult ConstructVerifyConnectionResponse(IRestResponse response)
+        {
+            var errorMessageBase = $"{Constants.ProviderName} returned \"{(int)response.StatusCode} {response.StatusDescription}\".";
+            if (response.ErrorException != null)
+            {
+                return new ConnectionVerificationResult(false, $"{errorMessageBase} {(!string.IsNullOrWhiteSpace(response.ErrorException.Message) ? response.ErrorException.Message : "This could be due to breaking changes in the external system")}.");
+            }
+
+            if (response.StatusCode is HttpStatusCode.Unauthorized)
+            {
+                return new ConnectionVerificationResult(false, $"{errorMessageBase} This could be due to invalid API key.");
+            }
+
+            var regex = new Regex(@"\<(html|head|body|div|span|img|p\>|a href)", RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.IgnorePatternWhitespace);
+            var isHtml = regex.IsMatch(response.Content);
+
+            var errorMessage = response.IsSuccessful ? string.Empty
+                : string.IsNullOrWhiteSpace(response.Content) || isHtml
+                    ? $"{errorMessageBase} This could be due to breaking changes in the external system."
+                    : $"{errorMessageBase} {response.Content}.";
+
+            return new ConnectionVerificationResult(response.IsSuccessful, errorMessage);
         }
 
         private IEntityMetadata CreateMetadata(IExternalSearchQueryResult<PermIdSocialResponse> resultItem, IExternalSearchRequest request)
