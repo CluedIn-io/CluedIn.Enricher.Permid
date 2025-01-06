@@ -29,8 +29,6 @@ using CluedIn.ExternalSearch.Providers.PermId.Vocabularies;
 using CluedIn.ExternalSearch.Filters;
 using CluedIn.ExternalSearch.Providers.PermId.Models;
 using System.Text.RegularExpressions;
-using Azure;
-using Z.Expressions;
 
 namespace CluedIn.ExternalSearch.Providers.PermId
 {
