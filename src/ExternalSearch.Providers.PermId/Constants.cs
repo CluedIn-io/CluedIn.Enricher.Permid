@@ -57,17 +57,24 @@ namespace CluedIn.ExternalSearch.Providers.PermId
 
         public static AuthMethods AuthMethods { get; set; } = new AuthMethods
         {
-            Token = new List<Control>()
+            Token = new List<Control>
             {
-                new Control()
+                new()
                 {
                     DisplayName = "API Key",
                     Type = "password",
                     IsRequired = true,
                     Name = KeyName.ApiToken,
-                    Help = "The key to authenticate access to the PermID API."
+                    Help = "The key to authenticate access to the PermID API.",
+                    ValidationRules = new List<Dictionary<string, string>>()
+                    {
+                        new() {
+                            { "regex", "\\s" },
+                            { "message", "Spaces are not allowed" }
+                        }
+                    },
                 },
-                new Control()
+                new()
                 {
                     DisplayName = "Accepted Entity Type",
                     Type = "entityTypeSelector",
@@ -75,7 +82,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
                     Name = KeyName.AcceptedEntityType,
                     Help = "The entity type that defines the golden records you want to enrich (e.g., /Organization)."
                 },
-                new Control()
+                new()
                 {
                     DisplayName = "Organization Name Vocabulary Key",
                     Type = "vocabularyKeySelector",
