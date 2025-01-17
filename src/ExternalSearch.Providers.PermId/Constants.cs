@@ -61,8 +61,8 @@ namespace CluedIn.ExternalSearch.Providers.PermId
             {
                 new()
                 {
-                    DisplayName = "Api Key",
-                    Type = "input",
+                    DisplayName = "API Key",
+                    Type = "password",
                     IsRequired = true,
                     Name = KeyName.ApiToken,
                     Help = "The key to authenticate access to the PermID API.",
