@@ -200,8 +200,9 @@ namespace CluedIn.ExternalSearch.Providers.PermId
 
         public IEnumerable<Clue> BuildClues(ExecutionContext context, IExternalSearchQuery query, IExternalSearchQueryResult result, IExternalSearchRequest request, IDictionary<string, object> config, IProvider provider)
         {
-            var organizationClue = new Clue(request.EntityMetaData.OriginEntityCode, context.Organization);
-            organizationClue.Data.EntityData.Codes.Add(request.EntityMetaData.Codes.First());
+            var code = new EntityCode(request.EntityMetaData.OriginEntityCode.Type, "permid", $"{query.QueryKey}{request.EntityMetaData.OriginEntityCode}".ToDeterministicGuid());
+
+            var organizationClue = new Clue(code, context.Organization);
 
             this.PopulateMetadata(organizationClue.Data.EntityData, result.As<PermIdSocialResponse>(), request);
 
@@ -327,14 +328,16 @@ namespace CluedIn.ExternalSearch.Providers.PermId
         {
             if (resultItem == null)
                 throw new ArgumentNullException(nameof(resultItem));
-
             var data = resultItem.Data;
+
+            var code = new EntityCode(request.EntityMetaData.OriginEntityCode.Type, "permid", $"{request.Queries.FirstOrDefault()?.QueryKey}{request.EntityMetaData.OriginEntityCode}".ToDeterministicGuid());
 
             metadata.EntityType  = request.EntityMetaData.EntityType;
             metadata.Name        = request.EntityMetaData.Name;
             metadata.CreatedDate = resultItem.CreatedDate;
 
-            metadata.OriginEntityCode = request.EntityMetaData.OriginEntityCode;
+            metadata.OriginEntityCode = code;
+            metadata.Codes.Add(request.EntityMetaData.OriginEntityCode);
 
             metadata.Properties[PermIdVocabularies.Organization.PermId]                     = data.PermId?.FirstOrDefault().PrintIfAvailable();
             metadata.Properties[PermIdVocabularies.Organization.DomiciledIn]                = data.DomiciledIn?.FirstOrDefault().PrintIfAvailable();
