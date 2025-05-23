@@ -86,7 +86,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
                 {
                     DisplayName = "Organization Name Vocabulary Key",
                     Type = "vocabularyKeySelector",
-                    IsRequired = false,
+                    IsRequired = true,
                     Name = KeyName.OrganizationName,
                     Help = "The vocabulary key that contains the names of companies you want to enrich (e.g., organization.name)."
                 }
