@@ -126,7 +126,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
 
             if (!queriesGenerated)
             {
-                throw new Exception($"Unable to generate queries for {entityName}. Name was filtered out.");
+                throw new Exception($"Unable to generate queries for {entityName}. Name is filtered out.");
             }
         }
 
