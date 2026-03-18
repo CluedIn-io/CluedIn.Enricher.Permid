@@ -90,10 +90,11 @@ namespace CluedIn.ExternalSearch.Providers.PermId
             var existingResults = request.GetQueryResults<PermIdSocialResponse>(this).ToList();
 
             Func<string, bool> existingDataFilter   = value => existingResults.Any(r => string.Equals(r.Data.OrganizationName.First(), value, StringComparison.InvariantCultureIgnoreCase));
-            Func<string, bool> nameFilter           = value => OrganizationFilters.NameFilter(context, value) || existingResults.Any(r => string.Equals(r.Data.OrganizationName.First(), value, StringComparison.InvariantCultureIgnoreCase));
+            Func<string, bool> nameFilter = value => OrganizationFilters.NameFilter(context, value);
 
             // Query Input
             var entityType       = request.EntityMetaData.EntityType;
+            var entityName = !string.IsNullOrEmpty(request.EntityMetaData.Name) ? request.EntityMetaData.Name : request.EntityMetaData.DisplayName;
 
             var organizationName = GetValue(request, config.ToDictionary(), Constants.KeyName.OrganizationName, Core.Data.Vocabularies.Vocabularies.CluedInOrganization.OrganizationName);
 
@@ -103,19 +104,29 @@ namespace CluedIn.ExternalSearch.Providers.PermId
             if (!string.IsNullOrEmpty(request.EntityMetaData.DisplayName))
                 organizationName.Add(request.EntityMetaData.DisplayName);
 
-            if (organizationName != null)
+            if (!organizationName.Any())
             {
-                var values = organizationName.GetOrganizationNameVariants()
-                                             .Select(NameNormalization.Normalize)
-                                             .ToHashSet();
+                throw new Exception($"Unable to generate queries for {entityName}. Name is empty.");
+            }
 
-                foreach (var value in values)
-                {
-                    if (existingDataFilter(value) || nameFilter(value))
-                        continue;
+            var values = organizationName.GetOrganizationNameVariants()
+                .Select(NameNormalization.Normalize)
+                .ToHashSet();
 
-                    yield return new ExternalSearchQuery(this, entityType, ExternalSearchQueryParameter.Name, value);
-                }
+            var queriesGenerated = false;
+            foreach (var value in values)
+            {
+                if (existingDataFilter(value) || nameFilter(value))
+                    continue;
+
+                queriesGenerated = true;
+                yield return new ExternalSearchQuery(this, entityType, ExternalSearchQueryParameter.Name, value);
+            }
+
+
+            if (!queriesGenerated)
+            {
+                throw new Exception($"Unable to generate queries for {entityName}. Name is filtered out.");
             }
         }
 
