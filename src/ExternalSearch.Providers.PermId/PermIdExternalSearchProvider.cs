@@ -190,7 +190,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
 
             ActionExtensions.ExecuteWithRetry(() =>
             {
-                var request = new RestRequest(parameter, Method.GET);
+                var request = new RestRequest(parameter, Method.Get);
 
                 request.AddHeader("X-AG-Access-Token", apiKey);
 
@@ -266,7 +266,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
 
             var searchClient = new RestClient("https://api-eit.refinitiv.com/permid/search?q=Google");
             var socialClient = new RestClient("https://permid.org/api/mdaas/getEntityById/");
-            var request = new RestRequest(Method.GET);
+            var request = new RestRequest();
             request.AddHeader("X-AG-Access-Token", apiToken);
 
             var searchResponse = searchClient.Execute<PermIdSearchResponse>(request);
@@ -286,7 +286,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
 
             foreach (var permId in idList)
             {
-                request = new RestRequest(permId, Method.GET);
+                request = new RestRequest(permId, Method.Get);
                 request.AddHeader("X-AG-Access-Token", apiToken);
 
                 var socialResponse = socialClient.Execute<PermIdSearchResponse>(request);
@@ -299,7 +299,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
             return new ConnectionVerificationResult(true, string.Empty);
         }
 
-        private ConnectionVerificationResult ConstructVerifyConnectionResponse(IRestResponse response)
+        private ConnectionVerificationResult ConstructVerifyConnectionResponse(RestResponse response)
         {
             var errorMessageBase = $"{Constants.ProviderName} returned \"{(int)response.StatusCode} {response.StatusDescription}\".";
             if (response.ErrorException != null)
