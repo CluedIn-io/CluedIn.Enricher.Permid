@@ -211,7 +211,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId
 
         public IEnumerable<Clue> BuildClues(ExecutionContext context, IExternalSearchQuery query, IExternalSearchQueryResult result, IExternalSearchRequest request, IDictionary<string, object> config, IProvider provider)
         {
-            var code = new EntityCode(request.EntityMetaData.OriginEntityCode.Type, "permid", $"{query.QueryKey}{request.EntityMetaData.OriginEntityCode}".ToDeterministicGuid());
+            var code = new EntityCode(request.EntityMetaData.EntityType, "permid", $"{query.QueryKey}{request.EntityMetaData.OriginEntityCode}".ToDeterministicGuid());
 
             var organizationClue = new Clue(code, context.Organization);
 
@@ -341,7 +341,8 @@ namespace CluedIn.ExternalSearch.Providers.PermId
                 throw new ArgumentNullException(nameof(resultItem));
             var data = resultItem.Data;
 
-            var code = new EntityCode(request.EntityMetaData.OriginEntityCode.Type, "permid", $"{request.Queries.FirstOrDefault()?.QueryKey}{request.EntityMetaData.OriginEntityCode}".ToDeterministicGuid());
+            var queryKey = request.Queries.FirstOrDefault(x => x.Id == resultItem.QueryId)?.QueryKey ?? request.Queries.FirstOrDefault()?.QueryKey;
+            var code = new EntityCode(request.EntityMetaData.EntityType, "permid", $"{queryKey}{request.EntityMetaData.OriginEntityCode}".ToDeterministicGuid());
 
             metadata.EntityType  = request.EntityMetaData.EntityType;
             metadata.Name        = request.EntityMetaData.Name;
