@@ -190,7 +190,11 @@ namespace CluedIn.ExternalSearch.Providers.PermId
 
             ActionExtensions.ExecuteWithRetry(() =>
             {
+#if CLUEDIN_V50
                 var request = new RestRequest(parameter, Method.Get);
+#else
+                var request = new RestRequest(parameter, Method.GET);
+#endif
 
                 request.AddHeader("X-AG-Access-Token", apiKey);
 
@@ -286,7 +290,11 @@ namespace CluedIn.ExternalSearch.Providers.PermId
 
             foreach (var permId in idList)
             {
+#if CLUEDIN_V50
                 request = new RestRequest(permId, Method.Get);
+#else
+                request = new RestRequest(permId, Method.GET);
+#endif
                 request.AddHeader("X-AG-Access-Token", apiToken);
 
                 var socialResponse = socialClient.Execute<PermIdSearchResponse>(request);
@@ -299,7 +307,11 @@ namespace CluedIn.ExternalSearch.Providers.PermId
             return new ConnectionVerificationResult(true, string.Empty);
         }
 
-        private ConnectionVerificationResult ConstructVerifyConnectionResponse(RestResponse response)
+#if CLUEDIN_V50
+        private ConnectionVerificationResult ConstructVerifyConnectionResponse<T>(RestResponse<T> response)
+#else
+        private ConnectionVerificationResult ConstructVerifyConnectionResponse<T>(IRestResponse<T> response)
+#endif
         {
             var errorMessageBase = $"{Constants.ProviderName} returned \"{(int)response.StatusCode} {response.StatusDescription}\".";
             if (response.ErrorException != null)
