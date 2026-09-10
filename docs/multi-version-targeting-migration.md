@@ -180,16 +180,33 @@ BranchName: feature/multi-version-targeting
 
 ## Step 7 — Push and confirm CI
 
-Status: **Pending**
+Status: **Done**
+
+First push (PR #41, build 151863) failed all three legs on the `useGitVersionDotNetTool` omission
+described in Step 1 (nothing to do with this repo's code or GitVersion.yml itself). Fixed, pushed,
+re-ran (build 151866) — fully green: all three `Multi-version build+test` legs (4.7.0, 4.8.0,
+5.0.0-beta.*) and `Multi-version: publish` passed. (This repo has no integration tests, so no
+separate `Integration tests` legs run, matching the "no active test projects" note above.)
+
+**Mid-migration cross-check (coordinator relay from a sibling fork migrating
+`CluedIn.Enricher.Gleif` in the same batch):** that fork reported `GitVersion.Tool 5.9.0` silently
+mis-resolving `ignore.commits-before` due to a local-vs-UTC time parsing issue, requiring 2 days of
+padding past the tag's timestamp instead of the ~1-day margin Dataverse.V2's doc used. Re-verified
+this repo's actual `GitVersion.yml` value against the pinned tool at that point (commit `a9473a4`)
+before reporting done: full JSON output confirmed `"Major": 1, "Minor": 0, "Patch": 0,
+"MajorMinorPatch": "1.0.0"` — correct, no silent mis-resolution here, and no padding change was
+made. This repo's `commits-before` value already landed after the tag's timestamp under both a UTC
+and a local-time interpretation, unlike whatever produced the smaller margin that tripped Gleif's
+fork.
 
 ---
 
 ## Checklist
 
-- [x] `azure-pipelines.yml` — switched to `crawler.build.jobs.yml` with `multiVersionCluedInTargets` (4.7.0, 4.8.0, 5.0.0-beta.*); pool switched to ubuntu-22.04
+- [x] `azure-pipelines.yml` — switched to `crawler.build.jobs.yml` with `multiVersionCluedInTargets` (4.7.0, 4.8.0, 5.0.0-beta.*); pool switched to ubuntu-22.04; `useGitVersionDotNetTool`/publish parameters set explicitly after the first CI run caught their omission
 - [x] `Directory.Build.props` — honours `CluedInMultiVersionTargetFramework` with net10.0 local fallback; `DefineConstants` derived; `LangVersion` pinned to 13.0
 - [x] `Packages.props` — `_CluedIn` guarded (already correctly cased)
 - [x] `NuGet.config` — renamed from `Nuget.config`; verified sufficient as-is otherwise
 - [x] Source — `#if CLUEDIN_V50` guards added for the RestSharp 106↔114 API break (3 call sites in `PermIdExternalSearchProvider.cs`); verified 0 errors on all three legs
-- [x] `GitVersion.yml` — `next-version: 1.0`; `ignore.commits-before: 2026-06-18T00:00:00`; verified with the pipeline's actual pinned GitVersion.Tool 5.9.0
-- [ ] Push branch and confirm the Azure DevOps pipeline is green end-to-end (all three legs + `Multi-version: publish`)
+- [x] `GitVersion.yml` — `next-version: 1.0`; `ignore.commits-before: 2026-06-18T00:00:00`; verified with the pipeline's actual pinned GitVersion.Tool 5.9.0 (re-checked full `Major`/`Minor`/`Patch` output mid-migration, not just `SemVer`, after a sibling repo hit a silent local-vs-UTC resolution bug)
+- [x] Pushed branch and confirmed the Azure DevOps pipeline is green end-to-end — PR #41, build 151866: all three legs + `Multi-version: publish` passed
