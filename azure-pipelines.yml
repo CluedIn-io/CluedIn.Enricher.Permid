@@ -58,6 +58,11 @@ jobs:
     parameters:
       pool:
         vmImage: 'ubuntu-22.04'
+      githubReleaseInMaster: true
+      publicReleaseForMaster: true
+      publishCodeCoverage: true
+      useGitVersionDotNetTool: true
+      publishToDevFeed: true
       probeCluedInVersion: ${{ parameters.probeCluedInVersion }}
       # CluedIn 4.7.0/4.8.0 are net6.0; 5.0.0-beta.* floats to whatever prerelease is newest in the
       # develop feed (confirmed 2026-09-10: 5.0.0-* resolves to 5.0.0-beta.575 - beta is the

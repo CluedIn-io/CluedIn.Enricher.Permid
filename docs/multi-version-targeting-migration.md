@@ -59,12 +59,30 @@ Replaced the single-version `crawler.build.yml` steps-template with the multi-ve
 `master`, `release/*`, `ama/*`) unchanged. `pipelineTemplateRef` set to
 `refs/heads/feature/multi-version-packaging`.
 
+**First push (PR #41, build 151863) failed all three legs**, not on this repo's code at all —
+purely a pipeline-authoring mistake: the original single-version call
+(`- template: crawler.build.yml@templates` with zero parameters) had never set
+`useGitVersionDotNetTool`, and the first version of this file carried that omission forward
+instead of matching Dataverse.V2/GoogleMaps' explicit `useGitVersionDotNetTool: true`. Left at its
+default (`false`), the template's `UseGitVersion` step falls back to the legacy marketplace
+`GitVersionTask@5` extension, which runs on a retired Node6 runtime and failed outright on this
+org's current hosted agents (`Error: EINVAL: invalid argument, readlink
+'/opt/hostedtoolcache/dotnet/dotnet'` during its own tool-caching step) - identical failure, same
+log line, on all three legs. Nothing to do with GitVersion.yml's schema (that part was already
+verified fine in Step 6 below) or this repo's code. Fixed by adding the same explicit parameter
+set Dataverse.V2 and every other migrated repo uses:
+
 ```yaml
 jobs:
   - template: crawler.build.jobs.yml@templates
     parameters:
       pool:
         vmImage: 'ubuntu-22.04'
+      githubReleaseInMaster: true
+      publicReleaseForMaster: true
+      publishCodeCoverage: true
+      useGitVersionDotNetTool: true
+      publishToDevFeed: true
       probeCluedInVersion: ${{ parameters.probeCluedInVersion }}
       multiVersionCluedInTargets:
         - cluedInVersion: '4.7.0'
