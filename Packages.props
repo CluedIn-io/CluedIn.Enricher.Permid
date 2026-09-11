@@ -1,7 +1,9 @@
 <Project>
   <PropertyGroup Label="Dependency Versions">
     <_AutoFixture>5.0.0-preview0012</_AutoFixture>
-    <_CluedIn>5.0.0-*</_CluedIn>
+    <!-- Guarded so the pipeline's -p:_CluedIn=<version> per build leg wins; Directory.Build.props
+         sets the same default/guard earlier for DefineConstants derivation. -->
+    <_CluedIn Condition="'$(_CluedIn)' == ''">5.0.0-*</_CluedIn>
   </PropertyGroup>
   <ItemGroup>
     <!--
