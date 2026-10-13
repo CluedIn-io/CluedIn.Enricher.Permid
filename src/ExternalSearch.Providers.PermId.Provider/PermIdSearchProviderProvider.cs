@@ -139,6 +139,7 @@ namespace CluedIn.ExternalSearch.Providers.PermId.Provider
             { "vocabKeyPrefix", PermIdVocabularies.Organization.KeyPrefix},
             { "autoSubmission", false },
             { "dataSourceSetId", string.Empty },
+            { "fieldGroups", Constants.FieldGroups }, // for UI
         };
     }
 }
